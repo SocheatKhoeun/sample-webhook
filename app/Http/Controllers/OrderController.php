@@ -13,6 +13,13 @@ use App\Models\Telegram;
 
 class OrderController extends Controller
 {
+    protected $telegramToken;
+
+    public function __construct()
+    {
+        $this->telegramToken = env('TELEGRAM_BOT_TOKEN');
+    }
+
     public function store(Request $request)
 {
     $validated = $request->validate([
@@ -56,12 +63,20 @@ class OrderController extends Controller
         $telegram = Telegram::where('user_id', $userId)->first();
         if ($telegram) {
             try {
-                Http::post('https://webhook.syden-dev.com/webhook/telegram', [
-                    'app_key' => (string) $telegram->app_key,
-                    'chatidbot' => (string) $telegram->chatBotID,
-                    'username' => $user->name,
-                    'order_id' => $order->id,
-                    'total' => number_format($subtotal, 2, '.', ''), // seller-specific total
+                // Compose message for Telegram
+                $message = "🛒 អ្នកទទួលបានការបញ្ជាទិញថ្មី!\n";
+                $message .= "👤 អតិថិជន: {$user->name}\n";
+                $message .= "លេខបញ្ជាទិញ: {$order->id}\n";
+                $message .= "សរុប: " . number_format($subtotal, 2, '.', '') . "៛\n";
+                $message .= "អាសយដ្ឋានដឹកជញ្ជូន: {$validated['delivery_address']}\n";
+                $message .= "សូមពិនិត្យក្នុងប្រព័ន្ធសម្រាប់ព័ត៌មានលម្អិតបន្ថែម។";
+
+                // Send message to Telegram
+                Http::post("https://api.telegram.org/bot{$this->telegramToken}/sendMessage", [
+                    'chat_id' => (string) $telegram->chatBotID,
+                    'text' => $message,
+                    'parse_mode' => 'HTML',
+                    'disable_web_page_preview' => true,
                 ]);
             } catch (\Exception $e) {
                 Log::error("Telegram webhook failed for user {$userId}: " . $e->getMessage());
