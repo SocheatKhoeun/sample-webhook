@@ -11,6 +11,7 @@ use Illuminate\Foundation\Application;
 use App\Http\Controllers\TelegramController;
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -35,7 +36,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders', [ShopController::class, 'index'])->name('shop.index');
     Route::post('/checkout', [ShopController::class, 'checkout'])->name('shop.checkout');
         Route::get('/orders/history', function () {
-        return \App\Models\Order::with('items.product')->where('user_id', auth()->id())->latest()->get();
+        return \App\Models\Order::with('items.product')->where('user_id', Auth::user()?->id)->latest()->get();
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -76,5 +77,8 @@ Route::middleware('auth')->group(function () {
         Route::delete("/{id}", [UserController::class, 'destroy'])->name('users.destroy')->middleware(['check:user-delete']);
     });
 });
+
+// Place this route OUTSIDE of any middleware/auth group:
+// Route::post('/webhook/telegram', [TelegramController::class, 'handleWebhook']);
 
 require __DIR__.'/auth.php';

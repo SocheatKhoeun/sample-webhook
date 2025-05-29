@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('app_key');
             $table->string('chatBotID');
             $table->string('tel_username');
+            $table->string('url_redirect')->nullable(); // Add this line
             $table->timestamps();
         });
     }

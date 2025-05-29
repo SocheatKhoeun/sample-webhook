@@ -80,7 +80,7 @@ export default function VerifyKey() {
                                             ⚠️ Key not found. Invalid Telegram auth.
                                         </div>
                                     )}
-                                    <a href="https://webhook.syden-dev.com/" target="_blank" 
+                                    <a href="https://t.me/Kyoichiro_bot" target="_blank" 
                                         class="text-center">
                                         <span>Telegram Bot</span>
                                     </a>
